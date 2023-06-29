@@ -2,26 +2,30 @@ const express = require('express');
 
 const ctrl = require('../../controllers/contacts');
 
-const { validateBody, isValidId } = require('../../middlevares');
+const { validateBody, isValidId, authenticate } = require('../../middlevares');
 
-const { schemas } = require('../../models/contact');
+const {
+  contactSchemas: { schemas },
+} = require('../../models');
 
 const router = express.Router();
 
-router.get('/', ctrl.getAll);
+router.get('/', authenticate, ctrl.getAll);
 
-router.get('/:id', isValidId, ctrl.getById);
+router.get('/:id', authenticate, isValidId, ctrl.getById);
 
 router.post(
   '/',
+  authenticate,
   validateBody(schemas.addSchema, 'missing required field'),
   ctrl.add
 );
 
-router.delete('/:id', isValidId, ctrl.deleteById);
+router.delete('/:id', authenticate, isValidId, ctrl.deleteById);
 
 router.put(
   '/:id',
+  authenticate,
   isValidId,
   validateBody(schemas.addSchema, 'missing fields'),
   ctrl.updateById
@@ -29,6 +33,7 @@ router.put(
 
 router.patch(
   '/:id/favorite',
+  authenticate,
   isValidId,
   validateBody(schemas.updateFavoriteSchema, 'missing field favorite'),
   ctrl.updateStatusContact
